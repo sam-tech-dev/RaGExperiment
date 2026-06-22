@@ -1,0 +1,88 @@
+Node.js Engineering Notes
+=========================
+
+## What is Node.js?
+Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine.
+It lets you run JavaScript on the server side, outside of a browser.
+Unlike traditional servers (like Apache), Node.js handles requests differently
+using a non-blocking, event-driven architecture.
+
+## The Event Loop
+The event loop is the heart of Node.js. It is what allows Node.js to handle
+thousands of connections at the same time without creating a new thread for each one.
+
+Here is how it works:
+1. Node.js starts and runs your code.
+2. When it hits an async operation (like reading a file or making an HTTP request),
+   it registers a callback and moves on immediately — it does NOT wait.
+3. The event loop keeps checking: "Is any async operation done?"
+4. When one finishes, it calls the registered callback.
+
+Think of it like a chef who starts boiling water, then immediately starts chopping
+vegetables while the water heats — instead of standing there waiting for the water.
+
+## Async / Await
+Before async/await, developers used "callback hell" — deeply nested functions.
+Async/await is cleaner syntax built on top of Promises.
+
+Example:
+  // Old way (callbacks)
+  fs.readFile('file.txt', function(err, data) {
+    processData(data, function(result) {
+      saveResult(result, function() {
+        console.log('done');
+      });
+    });
+  });
+
+  // New way (async/await) — much easier to read
+  async function run() {
+    const data = await fs.promises.readFile('file.txt');
+    const result = await processData(data);
+    await saveResult(result);
+    console.log('done');
+  }
+
+## npm (Node Package Manager)
+npm is the package manager for Node.js.
+- package.json: Describes your project and its dependencies (like build.gradle in Android).
+- node_modules/: Where installed packages live (like a local Maven cache).
+- npm install: Installs all dependencies listed in package.json.
+- npm run <script>: Runs a script defined in package.json.
+
+## Express.js
+Express is the most popular web framework for Node.js.
+It handles HTTP routing — deciding which function runs for which URL.
+
+Example:
+  const express = require('express');
+  const app = express();
+
+  app.get('/users', (req, res) => {
+    res.json({ users: ['Alice', 'Bob'] });
+  });
+
+  app.listen(3000);
+
+## Streams
+Streams let you process data piece by piece instead of loading it all into memory.
+Useful for large files or real-time data.
+Example: Reading a 1GB log file with a stream uses almost no memory.
+
+## CommonJS vs ES Modules
+- CommonJS (older): const x = require('module') / module.exports = x
+- ES Modules (newer): import x from 'module' / export default x
+Node.js now supports both, but many older codebases still use CommonJS.
+
+## Error Handling
+In async code, always use try/catch with await:
+  try {
+    const result = await someAsyncOperation();
+  } catch (error) {
+    console.error('Something went wrong:', error.message);
+  }
+
+## Node.js vs Browser JavaScript
+- No DOM (no document.getElementById), no window object
+- Has access to file system, network, OS (things browsers cannot do for security)
+- Same JavaScript language, different available APIs

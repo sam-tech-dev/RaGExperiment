@@ -1,0 +1,105 @@
+Android Development Notes
+==========================
+
+## What is Android?
+Android is Google's mobile operating system based on Linux.
+Apps are primarily written in Java or Kotlin and run in a sandboxed environment.
+
+## Activity
+An Activity is a single screen with a user interface.
+Think of it as one "page" of your app.
+Every Activity has a lifecycle managed by the Android OS:
+  onCreate()   → Screen is being created (set up UI here)
+  onStart()    → Screen becomes visible
+  onResume()   → Screen is in the foreground, user can interact
+  onPause()    → Another screen is partially covering this one
+  onStop()     → Screen is no longer visible
+  onDestroy()  → Screen is being destroyed (clean up resources here)
+
+Understanding the lifecycle is critical — if you open a database in onCreate(),
+close it in onDestroy(). Forgetting this causes memory leaks.
+
+## Intent
+An Intent is a messaging object used to request an action from another component.
+It is one of the most important concepts in Android.
+
+Two types:
+1. Explicit Intent: You know exactly which Activity to start.
+   Intent intent = new Intent(this, ProfileActivity.class);
+   startActivity(intent);
+
+2. Implicit Intent: You describe what action you want, Android picks the right app.
+   Intent intent = new Intent(Intent.ACTION_VIEW);
+   intent.setData(Uri.parse("https://www.google.com"));
+   startActivity(intent);  // Opens the browser
+
+You can also pass data between Activities using Intent extras:
+   intent.putExtra("USER_ID", 42);
+   // In the receiving Activity:
+   int userId = getIntent().getIntExtra("USER_ID", 0);
+
+## Fragment
+A Fragment is a reusable portion of UI that lives inside an Activity.
+Think of it as a "sub-screen" or "module" of UI.
+
+Why use Fragments?
+- Reusability: Use the same Fragment in multiple Activities.
+- Tablet layouts: Show two Fragments side by side on a tablet, one at a time on a phone.
+- Navigation: Modern Android apps often use a single Activity with multiple Fragments
+  (Single Activity Architecture).
+
+Fragments also have a lifecycle similar to Activities.
+
+## Gradle
+Gradle is the build system for Android (like Maven or npm for other platforms).
+
+Key files:
+- build.gradle (Project level): Configuration for the whole project.
+- build.gradle (App level): Your app's specific config — dependencies, version, SDK targets.
+
+Adding a dependency:
+  dependencies {
+      implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+  }
+Then sync the project and Gradle downloads it automatically.
+
+## RecyclerView
+RecyclerView is the standard way to display a scrollable list of items.
+It "recycles" list item views instead of creating new ones for every item
+(which is why it's fast with large lists).
+
+Key classes:
+- RecyclerView: The scrolling container
+- RecyclerView.Adapter: Bridges your data to the list items
+- ViewHolder: Holds references to views in one list item (avoids expensive findViewById calls)
+
+## ViewModel
+ViewModel stores UI-related data that survives screen rotations.
+Without ViewModel, rotating the screen destroys the Activity and loses all data.
+ViewModels are part of Android Jetpack's Architecture Components.
+
+## Room Database
+Room is Android's abstraction layer over SQLite.
+Instead of writing raw SQL queries everywhere, you define:
+- Entity: A data class representing a database table
+- DAO (Data Access Object): Interface with query methods
+- Database: The actual database class
+
+## Kotlin vs Java
+Kotlin is now Google's preferred language for Android:
+- Less boilerplate (no need for getters/setters)
+- Null safety built into the language (reduces NullPointerExceptions)
+- Coroutines for async code (like async/await in JavaScript)
+- 100% interoperable with Java
+
+## Manifest (AndroidManifest.xml)
+The manifest declares everything about your app:
+- All Activities, Services, BroadcastReceivers
+- Permissions the app needs (camera, internet, location)
+- The app's package name and version
+
+## Permissions
+Apps must declare permissions they need in the manifest.
+For dangerous permissions (camera, contacts, location), you also need to
+request them at runtime (since Android 6.0 / API 23).
+Users can deny permissions, so always handle the denial case gracefully.
